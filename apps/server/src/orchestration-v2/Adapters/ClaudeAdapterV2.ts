@@ -141,6 +141,7 @@ import {
 import type { ManagedServerProvider } from "@t3tools/provider-core/server/snapshot";
 import { mergeProviderInstanceEnvironment } from "@t3tools/provider-core/server/instanceEnvironment";
 import { T3_CODE_ORCHESTRATION_INSTRUCTIONS } from "@t3tools/provider-core/server/orchestrationInstructions";
+import { buildExecMemoryInstructions } from "@t3tools/provider-core/server/execMemory";
 import { buildRuntimeInstructions } from "@t3tools/provider-core/server/runtimeInstructions";
 import {
   mcpToolPresentation,
@@ -1055,6 +1056,10 @@ function claudeLiveSelectionFlagSettings(
   };
 }
 
+function withLeadingBreak(text: string): string {
+  return text === "" ? "" : `\n\n${text}`;
+}
+
 export function makeClaudeQueryOptions(input: {
   readonly modelSelection: ModelSelection;
   readonly nativeThreadId: string;
@@ -1164,7 +1169,13 @@ export function makeClaudeQueryOptions(input: {
       preset: "claude_code" as const,
       append:
         buildRuntimeInstructions({ harness: "Claude Code" }) +
-        (input.mcpServers === undefined ? "" : T3_CODE_ORCHESTRATION_INSTRUCTIONS),
+        (input.mcpServers === undefined ? "" : T3_CODE_ORCHESTRATION_INSTRUCTIONS) +
+        withLeadingBreak(
+          buildExecMemoryInstructions({
+            cwd: input.cwd,
+            lessonToolAvailable: input.mcpServers !== undefined,
+          }),
+        ),
     },
     ...(Object.keys(extraArgs).length === 0 ? {} : { extraArgs }),
   };

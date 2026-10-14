@@ -127,6 +127,10 @@
       "types": "./src/server/randomUuid.ts",
       "import": "./src/server/randomUuid.ts"
     },
+    "./server/execMemory": {
+      "types": "./src/server/execMemory.ts",
+      "import": "./src/server/execMemory.ts"
+    },
     "./server/runtimeInstructions": {
       "types": "./src/server/runtimeInstructions.ts",
       "import": "./src/server/runtimeInstructions.ts"

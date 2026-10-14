@@ -96,6 +96,7 @@ import { resolveAttachmentPath, resolveAttachmentPathById } from "../../attachme
 import { getCodexServiceTierOptionValue } from "../../codexModelOptions.ts";
 import { ServerConfig } from "../../config.ts";
 import { expandHomePath } from "@t3tools/provider-core/server/pathExpansion";
+import { buildExecMemoryInstructions } from "@t3tools/provider-core/server/execMemory";
 import {
   buildCodexAdditionalContext,
   buildCodexDeveloperInstructions,
@@ -773,10 +774,18 @@ export function buildCodexTurnStartParams(input: {
             },
           )
         : undefined;
+    const execMemory = buildExecMemoryInstructions({
+      cwd: input.runtimePolicy.cwd,
+      lessonToolAvailable: input.hasT3Mcp === true,
+    });
+    const execContext =
+      execMemory === "" ? {} : { exec_memory: { kind: "application" as const, value: execMemory } };
     const additionalContext =
-      t3Context === undefined && Object.keys(appContext).length === 0
+      t3Context === undefined &&
+      Object.keys(appContext).length === 0 &&
+      Object.keys(execContext).length === 0
         ? undefined
-        : { ...t3Context, ...appContext };
+        : { ...t3Context, ...execContext, ...appContext };
     const collaborationMode: CodexSchema.ClientRequest__CollaborationMode | undefined =
       input.runtimePolicy.interactionMode !== "plan" && developerInstructions === undefined
         ? undefined

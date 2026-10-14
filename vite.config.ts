@@ -71,6 +71,8 @@ export default defineConfig({
     ],
     hookTimeout: 60_000,
     testTimeout: 60_000,
+    // Keeps the developer's real Exec memory out of prompt assertions.
+    env: { T3_EXEC_MEMORY: "0" },
     setupFiles: [
       NodeURL.fileURLToPath(
         new URL("./packages/shared/src/testing/longTempDir.ts", import.meta.url),
