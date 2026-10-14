@@ -161,7 +161,13 @@ export const make = Effect.fn("OpenCodeServerLedger.make")(function* (input: {
           },
         ),
       )
-      .pipe(Effect.timeout("5 seconds"), Effect.map(parseDarwinPs));
+      .pipe(
+        // Node throws synchronously when a sandbox forbids exec (spawn EPERM); without
+        // this the defect escapes the callers' orElseSucceed and stops the server.
+        Effect.catchDefect(() => Effect.succeed("")),
+        Effect.timeout("5 seconds"),
+        Effect.map(parseDarwinPs),
+      );
 
   const observe = (pid: number): Effect.Effect<ObservedProcess | undefined> => {
     if (platform === "linux") return observeLinux(pid).pipe(Effect.orElseSucceed(() => undefined));
